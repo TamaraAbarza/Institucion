@@ -63,6 +63,6 @@ public class Inscripcion {
 
     @Override
     public String toString() {
-        return alumno.getNombre()+ " "+alumno.getApellido()+"  "+materia.getNombre();
+        return "Nombre: " +alumno.getNombre()+ " "+alumno.getApellido()+"  Materia: "+materia.getNombre();
     }
 }

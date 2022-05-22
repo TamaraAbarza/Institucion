@@ -36,7 +36,7 @@ public class AlumnoData {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
 
-            JOptionPane.showMessageDialog(null, " Se agregó el alumno " +alumno+" correctamente");
+            JOptionPane.showMessageDialog(null, " Se agregó al alumno " + alumno + " correctamente");
 
             if (rs.next()) {
                 alumno.setIdAlumno(rs.getInt(1));
@@ -72,15 +72,17 @@ public class AlumnoData {
                 alumno.setActivo(rs.getBoolean("activo"));
 
             }
-           // JOptionPane.showMessageDialog(null, " Alumno encontrado");
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error de conexion desde buscar alumno " + ex);
-
         }
 
+        if (alumno != null) {
+            JOptionPane.showMessageDialog(null, "Se encontró al alumno " + alumno);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error, no existe el alumno que intenta buscar");
+        }
         return alumno;
-
     }
 
     public void borrarAlumno(int idAlumno) {
@@ -120,7 +122,7 @@ public class AlumnoData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se modifico correctamente al alumno" + alumno);
+                JOptionPane.showMessageDialog(null, "Se modifico correctamente al alumno " + alumno);
             } else {
                 JOptionPane.showMessageDialog(null, "Error, no se pudo modificar al alumno. El alumno que intenta modifcar no existe ");
             }
@@ -159,7 +161,7 @@ public class AlumnoData {
         ArrayList<Alumno> alumnos = new ArrayList<Alumno>();
 
         try {
-            String sql = "SELECT * FROM alumno;";
+            String sql = "SELECT * FROM alumno WHERE activo=1;";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet resultSet = ps.executeQuery();
             Alumno alumno;

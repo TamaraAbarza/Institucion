@@ -65,18 +65,22 @@ public class MateriaData {
                 materia.setActivo(rs.getBoolean("activo"));
 
             }
-            //JOptionPane.showMessageDialog(null, " Materia encontrada");
             ps.close();
         } catch (SQLException ex) {
-           JOptionPane.showMessageDialog(null, "Error de conexion desde buscar materia " + ex);
+            JOptionPane.showMessageDialog(null, "Error de conexion desde buscar materia " + ex);
+        }
 
+        if (materia != null) {
+            JOptionPane.showMessageDialog(null, "Se encontró la materia " + materia);
+        } else {
+            JOptionPane.showMessageDialog(null, "Error, no existe la materia que intenta buscar");
         }
 
         return materia;
 
     }
 
-     public void modificarMateria(Materia materia) {
+    public void modificarMateria(Materia materia) {
 
         String sql = "UPDATE materia SET nombre=?, anioMateria=?, activo=? WHERE idMateria=?;";
         try {
