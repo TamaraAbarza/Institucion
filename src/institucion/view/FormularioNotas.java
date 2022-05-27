@@ -5,8 +5,17 @@
  */
 package institucion.view;
 
+import institucion.controlador.Conexion;
+import institucion.controlador.InscripcionData;
+import institucion.controlador.MateriaData;
+import institucion.modelo.Alumno;
+import institucion.modelo.Inscripcion;
 import institucion.modelo.Materia;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -17,8 +26,23 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
     /**
      * Creates new form CargaMateria
      */
-    public FormularioNotas() {
+    private List<Materia> materias;
+    private List<Alumno> alumnos;
+    private InscripcionData inscData;
+    private Conexion conexion;
+
+    public FormularioNotas(List<Alumno> alumnos) {
         initComponents();
+        this.alumnos = alumnos;
+        try {
+
+            conexion = new Conexion();
+            inscData = new InscripcionData(conexion);
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(FormularioAlXMateria.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        agregarAlumnos();
     }
 
     /**
@@ -39,7 +63,7 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
         btnActualizar = new javax.swing.JButton();
         jcbAlumno = new javax.swing.JComboBox<>();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        jTable = new javax.swing.JTable();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -58,7 +82,7 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
         jPanel1.setForeground(new java.awt.Color(51, 51, 51));
 
         jLabel1.setFont(new java.awt.Font("Lato", 0, 18)); // NOI18N
-        jLabel1.setText("CARGA DE NOTAS");
+        jLabel1.setText("CARGA  DE  NOTAS");
 
         jLabel2.setFont(new java.awt.Font("Lato", 1, 14)); // NOI18N
         jLabel2.setText("ALUMNO");
@@ -77,30 +101,30 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
         btnActualizar.setFont(new java.awt.Font("Lato", 0, 12)); // NOI18N
         btnActualizar.setForeground(new java.awt.Color(255, 255, 255));
         btnActualizar.setText("CANCELAR");
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarActionPerformed(evt);
+            }
+        });
 
-        jcbAlumno.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jcbAlumno.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcbAlumnoActionPerformed(evt);
+            }
+        });
 
-        jTable2.setBackground(new java.awt.Color(51, 51, 51));
-        jTable2.setForeground(new java.awt.Color(255, 255, 255));
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
                 {null, null, null},
                 {null, null, null},
                 {null, null, null},
                 {null, null, null}
             },
             new String [] {
-                "ID", "MATERIA", "NOTAS"
+                "CÓDIGO", "MATERIA", "NOTAS"
             }
         ));
-        jTable2.setSelectionBackground(new java.awt.Color(0, 34, 63));
-        jTable2.setSelectionForeground(new java.awt.Color(204, 0, 153));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(jTable);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -119,11 +143,15 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
                         .addComponent(jLabel1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(73, 73, 73)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jcbAlumno, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jcbAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(70, 70, 70)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
+                    .addGap(70, 70, 70)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -132,15 +160,18 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
                 .addComponent(jLabel1)
                 .addGap(44, 44, 44)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jcbAlumno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(56, 56, 56)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 286, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnGuardar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnActualizar, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(167, 167, 167)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(168, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -158,9 +189,49 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-      
+
+        for (int i = 0; i < jTable.getRowCount(); i++) {
+            int posicionFila = i;
+            Alumno alumnoSelec = (Alumno) jcbAlumno.getSelectedItem();
+            try {
+                int idMateria = (int) jTable.getValueAt(posicionFila, 0);
+                double nota = Double.parseDouble((String) jTable.getValueAt(posicionFila, 2));
+                boolean aux = inscData.actualizarNotainscripcion(alumnoSelec.getIdAlumno(), idMateria, nota);
+                if (aux) {
+                    JOptionPane.showMessageDialog(this, "Se moficó correctamente la nota de la materia " + (String) jTable.getValueAt(i, 1));
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al intentar modificarse la nota de la materia " + (String) jTable.getValueAt(i, 1));
+                }
+            } catch (Exception e) {
+                // JOptionPane.showMessageDialog(this, "Error al intentar modificar la nota de la fila "+i+". Intente nuevamente modificar la nota de la fila");
+            }
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
+    private void jcbAlumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbAlumnoActionPerformed
+        // TODO add your handling code here:
+        cargarTabla();
+    }//GEN-LAST:event_jcbAlumnoActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_btnActualizarActionPerformed
+    private void cargarTabla() {
+        Alumno alumnoSelec = (Alumno) jcbAlumno.getSelectedItem();
+        List<Inscripcion> inscripcion = inscData.obtenerInscripcionesXAlumno(alumnoSelec.getIdAlumno());
+        DefaultTableModel modelo = (DefaultTableModel) jTable.getModel();
+        modelo.setRowCount(0);
+        if (inscripcion != null) {
+            for (Inscripcion it : inscripcion) {
+                int idMateria = it.getMateria().getIdMateria();
+                String nombreM = it.getMateria().getNombre();
+                double nota = it.getNota();
+                modelo.addRow(new Object[]{idMateria, nombreM, nota});
+            }
+            jTable.setModel(modelo);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;
@@ -170,8 +241,30 @@ public class FormularioNotas extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JComboBox<String> jcbAlumno;
+    private javax.swing.JComboBox<Alumno> jcbAlumno;
     // End of variables declaration//GEN-END:variables
+
+    private void agregarAlumnos() {
+        for (Alumno it : alumnos) {
+            jcbAlumno.addItem(it);
+        }
+    }
+
+    private void agregarNotas() {
+
+        try {
+            Conexion conexion = new Conexion();
+            InscripcionData inscData = new InscripcionData(conexion);
+            Alumno selecAlumno = (Alumno) jcbAlumno.getSelectedItem();
+            List<Materia> materias = inscData.obtenerMateriasInscriptas(selecAlumno.getIdAlumno());
+            for (Materia it : materias) {
+
+            }
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(FormularioAlumno.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

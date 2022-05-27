@@ -5,6 +5,15 @@
  */
 package institucion.view;
 
+import institucion.controlador.AlumnoData;
+import institucion.controlador.Conexion;
+import institucion.controlador.MateriaData;
+import institucion.modelo.Alumno;
+import institucion.modelo.Materia;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Usuario
@@ -14,9 +23,20 @@ public class Principal extends javax.swing.JFrame {
     /**
      * Creates new form Principal
      */
+    Conexion conexion;
+    AlumnoData alumData;
+    MateriaData matData;
+
     public Principal() {
         initComponents();
         this.setLocationRelativeTo(null);
+        try {
+            conexion = new Conexion();
+            alumData = new AlumnoData(conexion);
+            matData = new MateriaData(conexion);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -42,6 +62,8 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem5 = new javax.swing.JMenuItem();
         jmConsulta = new javax.swing.JMenu();
         jMenuItem6 = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem8 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -126,9 +148,26 @@ public class Principal extends javax.swing.JFrame {
         jmConsulta.setText("Consultas");
 
         jMenuItem6.setText("Listado de alumnos");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jmConsulta.add(jMenuItem6);
 
         jMenuBar1.add(jmConsulta);
+
+        jMenu1.setText("Estado");
+
+        jMenuItem8.setText("Formulario de alta");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem8);
+
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
@@ -148,11 +187,13 @@ public class Principal extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
+         dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         fondo.removeAll();
-        FormularioMateria agregarM = new FormularioMateria();
+        FormularioMateria agregarM;
+        agregarM = new FormularioMateria();
         agregarM.setVisible(true);
         fondo.add(agregarM);
         fondo.repaint();
@@ -160,10 +201,15 @@ public class Principal extends javax.swing.JFrame {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         fondo.removeAll();
-        FormularioAlumno agregarA = new FormularioAlumno();
-        agregarA.setVisible(true);
-        fondo.add(agregarA);
-        fondo.repaint();
+        FormularioAlumno agregarA;
+        try {
+            agregarA = new FormularioAlumno();
+            agregarA.setVisible(true);
+            fondo.add(agregarA);
+            fondo.repaint();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jmAlumnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmAlumnoActionPerformed
@@ -171,20 +217,56 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_jmAlumnoActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        List<Alumno> alumnos;
+        alumnos = alumData.obtenerAlumnos();
         fondo.removeAll();
-        FormularioInscripcion agregarI = new FormularioInscripcion();
+        FormularioInscripcion agregarI = new FormularioInscripcion(alumnos);
         agregarI.setVisible(true);
         fondo.add(agregarI);
         fondo.repaint();
+
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+
+        List<Alumno> alumnos;
+        alumnos = alumData.obtenerAlumnos();
         fondo.removeAll();
-        FormularioNotas agregarN = new FormularioNotas();
+        FormularioNotas agregarN = new FormularioNotas(alumnos);
         agregarN.setVisible(true);
         fondo.add(agregarN);
         fondo.repaint();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        // TODO add your handling code here:
+        List<Materia> materias;
+        try {
+            Conexion conexion = new Conexion();
+            MateriaData matData = new MateriaData(conexion);
+            materias = matData.obtenerMaterias();
+            fondo.removeAll();
+            FormularioAlXMateria agregar = new FormularioAlXMateria(materias);
+            agregar.setVisible(true);
+            fondo.add(agregar);
+            fondo.repaint();
+
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(FormularioAlumno.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
+        List<Alumno> alumnos;
+        List<Materia> materias;
+        alumnos = alumData.alumnosInactivos();
+        materias = matData.materiasInactivas();
+        FormularioAlta agregar = new FormularioAlta(alumnos, materias);
+        fondo.removeAll();
+        agregar.setVisible(true);
+        fondo.add(agregar);
+        fondo.repaint();
+    }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -223,6 +305,7 @@ public class Principal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JDesktopPane fondo;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
@@ -230,6 +313,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenu jmAlumno;
     private javax.swing.JMenu jmArchivo;
     private javax.swing.JMenu jmConsulta;

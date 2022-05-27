@@ -23,8 +23,9 @@ public class AlumnoData {
         }
     }
 
-    public void insertarAlumno(Alumno alumno) {
+    public boolean insertarAlumno(Alumno alumno) {
 
+        boolean insert = true;
         String sql = "INSERT INTO alumno (nombre, apellido, fechaNac, activo)  VALUES (?, ?, ?, ?)";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -36,12 +37,12 @@ public class AlumnoData {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
 
-            JOptionPane.showMessageDialog(null, " Se agregó al alumno " + alumno + " correctamente");
-
+            //JOptionPane.showMessageDialog(null, " Se agregó al alumno " + alumno + " correctamente");
             if (rs.next()) {
                 alumno.setIdAlumno(rs.getInt(1));
             } else {
-                JOptionPane.showMessageDialog(null, "Error al intentar agregar al alumno");
+                // JOptionPane.showMessageDialog(null, "Error al intentar agregar al alumno");
+                insert = false;
             }
 
             ps.close();
@@ -49,6 +50,7 @@ public class AlumnoData {
             JOptionPane.showMessageDialog(null, "Error de conexion desde insertar alumno " + ex);
 
         }
+        return insert;
 
     }
 
@@ -78,38 +80,38 @@ public class AlumnoData {
         }
 
         if (alumno != null) {
-            JOptionPane.showMessageDialog(null, "Se encontró al alumno " + alumno);
+            //JOptionPane.showMessageDialog(null, "Se encontró al alumno " + alumno);
         } else {
-            JOptionPane.showMessageDialog(null, "Error, no existe el alumno que intenta buscar");
+            //  JOptionPane.showMessageDialog(null, "Error, no existe el alumno que intenta buscar");
         }
         return alumno;
     }
 
-    public void borrarAlumno(int idAlumno) {
+    public boolean borrarAlumno(int idAlumno) {
 
+        boolean borrar = false;
         String sql = "UPDATE alumno SET activo =0 WHERE idAlumno=?";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, idAlumno);
-
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se borró al alumno ");
+                // JOptionPane.showMessageDialog(null, "Se borró al alumno ");
+                borrar = true;
             } else {
-                JOptionPane.showMessageDialog(null, "Error, el alumno no existe ");
+                //JOptionPane.showMessageDialog(null, "Error, el alumno no existe ");
             }
-
             ps.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error de conexion desde insertar alumno " + ex);
-
+            JOptionPane.showMessageDialog(null, "Error de conexion desde borrar alumno " + ex);
         }
-
+        return borrar;
     }
 
-    public void modificarAlumno(Alumno alumno) {
+    public boolean modificarAlumno(Alumno alumno) {
 
+        boolean modificar = false;
         String sql = "UPDATE alumno SET nombre=?,apellido=?,fechaNac=?,activo=? WHERE idAlumno=?;";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -122,21 +124,21 @@ public class AlumnoData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se modifico correctamente al alumno " + alumno);
+                modificar = true;
+                //JOptionPane.showMessageDialog(null, "Se modifico correctamente al alumno " + alumno);
             } else {
-                JOptionPane.showMessageDialog(null, "Error, no se pudo modificar al alumno. El alumno que intenta modifcar no existe ");
+                // JOptionPane.showMessageDialog(null, "Error, no se pudo modificar al alumno. El alumno que intenta modifcar no existe ");
             }
-
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error de conexion desde modificar alumno " + ex);
-
         }
-
+        return modificar;
     }
 
-    public void activarAlumno(int idAlumno) {
+    public boolean activarAlumno(int idAlumno) {
 
+        boolean activar=false;
         String sql = "UPDATE alumno SET activo =1 WHERE idAlumno=?";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -145,9 +147,10 @@ public class AlumnoData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se activo el estado del alumno ");
+                activar=true;
+               // JOptionPane.showMessageDialog(null, "Se activo el estado del alumno ");
             } else {
-                JOptionPane.showMessageDialog(null, "Error, el alumno no existe");
+                //JOptionPane.showMessageDialog(null, "Error, el alumno no existe");
             }
 
             ps.close();
@@ -155,6 +158,7 @@ public class AlumnoData {
             JOptionPane.showMessageDialog(null, "Error de conexion desde insertar alumno " + ex);
 
         }
+        return activar;
     }
 
     public List<Alumno> obtenerAlumnos() {
@@ -162,6 +166,33 @@ public class AlumnoData {
 
         try {
             String sql = "SELECT * FROM alumno WHERE activo=1;";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet resultSet = ps.executeQuery();
+            Alumno alumno;
+            while (resultSet.next()) {
+                alumno = new Alumno();
+                alumno.setIdAlumno(resultSet.getInt("idAlumno"));
+                alumno.setApellido(resultSet.getString("apellido"));
+                alumno.setNombre(resultSet.getString("nombre"));
+                alumno.setFechaNac(resultSet.getDate("fechaNac").toLocalDate());
+                alumno.setActivo(resultSet.getBoolean("activo"));
+
+                alumnos.add(alumno);
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            System.out.println("Error al obtener los alumnos: " + ex.getMessage());
+        }
+
+        return alumnos;
+    }
+
+    //METODO EXTRA
+    public List<Alumno> alumnosInactivos() {
+        ArrayList<Alumno> alumnos = new ArrayList<Alumno>();
+
+        try {
+            String sql = "SELECT * FROM alumno WHERE activo=0;";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet resultSet = ps.executeQuery();
             Alumno alumno;

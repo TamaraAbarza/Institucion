@@ -35,15 +35,25 @@ public class InstitucionTest {
 //            alumData.insertarAlumno(alumno2);
 //            alumData.insertarAlumno(alumno3);
 //            alumData.insertarAlumno(alumno4);
-
+//
 //            //MODIFICAR ALUMNO
 //            Alumno alumno5 = new Alumno(10, "Tamara", "Abarza", LocalDate.of(1998, 12, 01), true);
 //            Alumno alumno6 = new Alumno(13,"Lautaro","Lucero",LocalDate.of(1998,10,28),true);
-//            alumData.modificarAlumno(alumno5);
+//            boolean aux=alumData.modificarAlumno(alumno5);
+//            if(aux){
+//                System.out.println("Se modificó correctamente al alumno ");
+//            }else{
+//                System.out.println("Error, no se pudo modificar al alumno");
+//            }
 //            alumData.modificarAlumno(alumno6);
 //            //prueba con alumno que no existe
 //            Alumno alumno7 = new Alumno(43, "Luciano", "Cejas", LocalDate.of(1997, 01, 29), true);
-//            alumData.modificarAlumno(alumno7);
+//            aux=alumData.modificarAlumno(alumno7);
+//             if(aux){
+//                System.out.println("Se modificó correctamente al alumno ");
+//            }else{
+//                System.out.println("Error, no se pudo modificar al alumno");
+//            }
 
 //            //BORRAR ALUMNO
 //            alumData.borrarAlumno(10);

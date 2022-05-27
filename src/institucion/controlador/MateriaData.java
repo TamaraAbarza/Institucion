@@ -22,7 +22,8 @@ public class MateriaData {
         }
     }
 
-    public void insetarMateria(Materia materia) {
+    public boolean insetarMateria(Materia materia) {
+        boolean insertar=false;
         String sql = "INSERT INTO materia (nombre, anioMateria,  activo)  VALUES (?, ?, ?)";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -32,12 +33,13 @@ public class MateriaData {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
 
-            JOptionPane.showMessageDialog(null, " Se agregó la materia correctamente");
+            //JOptionPane.showMessageDialog(null, " Se agregó la materia correctamente");
+            insertar=true;
 
             if (rs.next()) {
                 materia.setIdMateria(rs.getInt(1));
             } else {
-                JOptionPane.showMessageDialog(null, "Error, no se pudo agregar la materia");
+                //JOptionPane.showMessageDialog(null, "Error, no se pudo agregar la materia");
             }
 
             ps.close();
@@ -45,6 +47,7 @@ public class MateriaData {
             JOptionPane.showMessageDialog(null, "Error de conexion desde insertar materia" + ex);
 
         }
+        return insertar;
     }
 
     public Materia buscarMateria(int idMateria) {
@@ -71,17 +74,18 @@ public class MateriaData {
         }
 
         if (materia != null) {
-            JOptionPane.showMessageDialog(null, "Se encontró la materia " + materia);
+           // JOptionPane.showMessageDialog(null, "Se encontró la materia " + materia);
         } else {
-            JOptionPane.showMessageDialog(null, "Error, no existe la materia que intenta buscar");
+           // JOptionPane.showMessageDialog(null, "Error, no existe la materia que intenta buscar");
         }
 
         return materia;
 
     }
 
-    public void modificarMateria(Materia materia) {
+    public boolean modificarMateria(Materia materia) {
 
+        boolean mod=false;
         String sql = "UPDATE materia SET nombre=?, anioMateria=?, activo=? WHERE idMateria=?;";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -93,21 +97,22 @@ public class MateriaData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se modificó correctamente la materia " + materia);
+               // JOptionPane.showMessageDialog(null, "Se modificó correctamente la materia " + materia);
+                mod=true;
             } else {
-                JOptionPane.showMessageDialog(null, "Error, no se pudo modificar la materia. La materia que intenta modifcar no existe ");
+              //  JOptionPane.showMessageDialog(null, "Error, no se pudo modificar la materia. La materia que intenta modifcar no existe ");
             }
-
             ps.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error de conexion desde modificar materia " + ex);
-
         }
+        return mod;
 
     }
 
-    public void borrarMateria(int idMateria) {
+    public boolean borrarMateria(int idMateria) {
 
+        boolean borrar=false;
         String sql = "UPDATE materia SET activo =0 WHERE idMateria=?";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -116,9 +121,10 @@ public class MateriaData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se eliminó correctamente la materia");
+                //JOptionPane.showMessageDialog(null, "Se eliminó correctamente la materia");
+                borrar=true;
             } else {
-                JOptionPane.showMessageDialog(null, "Error, no se pudo borrar la materia. La materia que intenta borrar no existe");
+                //JOptionPane.showMessageDialog(null, "Error, no se pudo borrar la materia. La materia que intenta borrar no existe");
             }
 
             ps.close();
@@ -126,6 +132,7 @@ public class MateriaData {
             JOptionPane.showMessageDialog(null, "Error de conexion desde borrar materia " + ex);
 
         }
+        return borrar;
     }
 
     public List<Materia> obtenerMaterias() {
@@ -153,8 +160,9 @@ public class MateriaData {
         return materias;
     }
 
-    public void activarMateria(int idMateria) {
+    public boolean activarMateria(int idMateria) {
 
+        boolean activar=false;
         String sql = "UPDATE materia SET activo =1 WHERE idMateria=?";
         try {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -163,9 +171,10 @@ public class MateriaData {
             int rs = ps.executeUpdate();
 
             if (rs > 0) {
-                JOptionPane.showMessageDialog(null, "Se activo el estado de la materia ");
+                //JOptionPane.showMessageDialog(null, "Se activo el estado de la materia ");
+                activar=true;
             } else {
-                JOptionPane.showMessageDialog(null, "Error, la materia que intenta activar no existe ");
+               // JOptionPane.showMessageDialog(null, "Error, la materia que intenta activar no existe ");
             }
 
             ps.close();
@@ -173,5 +182,36 @@ public class MateriaData {
             JOptionPane.showMessageDialog(null, "Error de conexion desde activar materia " + ex);
 
         }
+        return activar;
     }
+    
+    //METODO EXTRA
+    public List<Materia> materiasInactivas() {
+        ArrayList<Materia> materias = new ArrayList<>();
+
+        try {
+            String sql = "SELECT * FROM materia WHERE activo=0;";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet resultSet = ps.executeQuery();
+            Materia materia;
+            while (resultSet.next()) {
+                materia = new Materia();
+                materia.setIdMateria(resultSet.getInt("idMateria"));
+                materia.setNombre(resultSet.getString("nombre"));
+                materia.setAnioMateria(resultSet.getInt("anioMateria"));
+                materia.setActivo(resultSet.getBoolean("activo"));
+
+                materias.add(materia);
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            System.out.println("Error al obtener las materias: " + ex.getMessage());
+        }
+
+        return materias;
+    }
+
+    
+    
+    
 }

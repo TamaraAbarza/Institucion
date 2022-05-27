@@ -26,7 +26,8 @@ public class InscripcionData {
         }
     }
 
-    public void guardarInscripcion(Inscripcion inscripcion) {
+    public boolean  guardarInscripcion(Inscripcion inscripcion) {
+        boolean insc=false;
         try {
             String sql = "INSERT INTO inscripcion (idAlumno, idMateria, nota) VALUES ( ? , ? , ? );";
 
@@ -40,38 +41,45 @@ public class InscripcionData {
 
             if (rs.next()) {
                 inscripcion.setIdInscripcion(rs.getInt(1));
-                JOptionPane.showMessageDialog(null, "Se inscribió al alumno correctamente");
+               // JOptionPane.showMessageDialog(null, "Se inscribió al alumno correctamente");
+               insc=true;
             } else {
-                JOptionPane.showMessageDialog(null, "No se pudo obtener el id luego de insertar un alumno");
+                //JOptionPane.showMessageDialog(null, "No se pudo obtener el id luego de insertar un alumno");
             }
             ps.close();
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error al inscribir al alumno: " + ex.getMessage());
         }
+        return insc;
     }
     
 
-    public void actualizarNotainscripcion(int idAlumno, int idMateria, int nota) {
+    public boolean actualizarNotainscripcion(int idAlumno, int idMateria, double nota) {
 
+        boolean act=false;
         try {
             String sql = "UPDATE inscripcion SET nota = ? WHERE idAlumno =? and idMateria =?;";
 
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, nota);
+            ps.setDouble(1, nota);
             ps.setInt(2, idAlumno);
             ps.setInt(3, idMateria);
 
             ps.executeUpdate();
             ps.close();
-            JOptionPane.showMessageDialog(null, "Se actualizo correctamente la nota ");
+            //JOptionPane.showMessageDialog(null, "Se actualizo correctamente la nota ");
+            act=true;
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error en actualizar nota " + ex.getMessage());
+            //JOptionPane.showMessageDialog(null, "Error en actualizar nota " + ex.getMessage());
         }
+        return act;
     }
 
     
-    public void borrarInscripcion(int idAlumno, int idMateria) {
+    public boolean borrarInscripcion(int idAlumno, int idMateria) {
+        
+        boolean borrar=false;
         try {
             String sql = "DELETE FROM inscripcion WHERE idAlumno =? and idMateria =?;";
 
@@ -79,12 +87,19 @@ public class InscripcionData {
             ps.setInt(1, idAlumno);
             ps.setInt(2, idMateria);
 
-            ps.executeUpdate();
+            int rs= ps.executeUpdate();
+             if (rs > 0) {
+                // JOptionPane.showMessageDialog(null, "Se borró al alumno ");
+                borrar = true;
+            } else {
+                //JOptionPane.showMessageDialog(null, "Error, el alumno no existe ");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            System.out.println("Error al borrar la inscripcion " + ex.getMessage());
+              JOptionPane.showMessageDialog(null, "Error de conexion desde borrar inscripcion " + ex);
         }
+        return borrar;
     }
 
     
@@ -179,7 +194,7 @@ public class InscripcionData {
         List<Materia> materias = new ArrayList<Materia>();
 
         try {
-            String sql = "SELECT inscripcion.idMateria, nombre FROM inscripcion, materia WHERE inscripcion.idMateria = materia.idMateria\n"
+            String sql = "SELECT inscripcion.idMateria, nombre,anioMateria FROM inscripcion, materia WHERE inscripcion.idMateria = materia.idMateria\n"
                     + "and inscripcion.idAlumno = ?;";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, idAlumno);
@@ -189,6 +204,7 @@ public class InscripcionData {
                 materia = new Materia();
                 materia.setIdMateria(resultSet.getInt("idMateria"));
                 materia.setNombre(resultSet.getString("nombre"));
+                materia.setAnioMateria(resultSet.getInt("anioMateria"));
                 materias.add(materia);
             }
             ps.close();
@@ -212,6 +228,7 @@ public class InscripcionData {
                 materia = new Materia();
                 materia.setIdMateria(resultSet.getInt("idMateria"));
                 materia.setNombre(resultSet.getString("nombre"));
+                materia.setAnioMateria(resultSet.getInt("anioMateria"));
                 materias.add(materia);
             }
             ps.close();
@@ -233,4 +250,37 @@ public class InscripcionData {
         return matData.buscarMateria(idMateria);
     }
 
+    
+    
+    //extra
+    public List<Inscripcion> obtenerInscripcionesXMateria(int idMateria) {
+        List<Inscripcion> inscripciones = new ArrayList<Inscripcion>();
+        try {
+            String sql = "SELECT * FROM inscripcion WHERE idMateria = ?;";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, idMateria);
+            ResultSet resultSet = ps.executeQuery();
+            Inscripcion inscripcion;
+            while (resultSet.next()) {
+                inscripcion = new Inscripcion();
+                inscripcion.setIdInscripcion(resultSet.getInt("idInscripcion"));
+
+                Alumno a = buscarAlumno(resultSet.getInt("idAlumno"));
+                inscripcion.setAlumno(a);
+
+                Materia m = buscarMateria(resultSet.getInt("idMateria"));
+                inscripcion.setMateria(m);
+
+                inscripcion.setNota(resultSet.getInt("nota"));
+
+                inscripciones.add(inscripcion);
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al obtener las inscripciones " + ex.getMessage());
+        }
+        return inscripciones;
+    }
+    
+    
 }
